@@ -4,10 +4,10 @@ package com.thegeekchief.kidsdrawingapp
 import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
 
-    val requestPermission : ActivityResultLauncher<Array<String>> =
+    private val requestPermission : ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){
             permissions->
             permissions.entries.forEach{
@@ -37,7 +37,8 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 } else{
-                    if(permissionName==Manifest.permission.READ_EXTERNAL_STORAGE){
+                    if(permissionName==Manifest.permission.READ_MEDIA_IMAGES ||
+                        permissionName==Manifest.permission.READ_EXTERNAL_STORAGE){
                         Toast.makeText(
                             this@MainActivity,
                             "Oops you just denied the permission.",
@@ -124,15 +125,24 @@ class MainActivity : AppCompatActivity() {
     private fun requestStoragePermission(){
         if(ActivityCompat.shouldShowRequestPermissionRationale(
             this,
-            Manifest.permission.READ_EXTERNAL_STORAGE)
+            Manifest.permission.READ_MEDIA_IMAGES)
         ){
             showRationaleDialog("Kids Drawing App", "Kids Drawing App " +
             "needs to Access Your External Storage")
         }else{
-            requestPermission.launch(arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
-                // TODO - Add writing external storage permission
-            ))
+
+            if(Build.VERSION.SDK_INT < 33){
+                requestPermission.launch(arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                    // TODO - Add writing external storage permission
+                ))
+            }
+            else{
+                requestPermission.launch(arrayOf(
+                    Manifest.permission.READ_MEDIA_IMAGES
+                    // TODO - Add writing external storage permission
+                ))
+            }
         }
     }
 
