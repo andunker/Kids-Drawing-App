@@ -24,14 +24,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -327,6 +325,7 @@ class MainActivity : AppCompatActivity() {
                                     "File saved successfully: $result",
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                shareImage(imageUri)
                             } else {
                                 Toast.makeText(
                                     this@MainActivity,
@@ -361,5 +360,13 @@ class MainActivity : AppCompatActivity() {
             customProgressDialog?.dismiss()
             customProgressDialog = null
         }
+    }
+
+    private fun shareImage(uri: Uri){
+        val intent = Intent()
+        intent.action = Intent.ACTION_SEND
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        intent.type = "image/jpeg"
+        startActivity(Intent.createChooser(intent, "Share"))
     }
 }
